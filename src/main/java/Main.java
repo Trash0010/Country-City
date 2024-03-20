@@ -54,6 +54,25 @@ public class Main {
         List<CityCountry> preparedData = main.transformData(allCities);
         main.pushToRedis(preparedData);
 
+        //close the current session in order to make a query to the database exactly,
+        // and not pull the data from the cache.
+        main.sessionFactory.getCurrentSession().close();
+
+        //we choose 10 random id cities
+        //we use ids that exist in the database
+        List<Integer> ids = List.of(3, 2545, 123, 4, 189, 89, 3458, 1189, 10, 102);
+
+        long startRedis = System.currentTimeMillis();
+        main.testRedisData(ids);
+        long stopRedis = System.currentTimeMillis();
+
+        long startMysql = System.currentTimeMillis();
+        main.testMysqlData(ids);
+        long stopMysql = System.currentTimeMillis();
+
+        System.out.printf("%s:\t%d ms\n", "Redis", (stopRedis - startRedis));
+        System.out.printf("%s:\t%d ms\n", "MySQL", (stopMysql - startMysql));
+
         main.shutdown();
     }
 
